@@ -1,0 +1,84 @@
+# Runs on every push and pull request: lint, types, API tests, browser tests.
+# Uses its own Postgres and fake keys only: no real Stripe, emails or photos.
+# (The Stripe payment test, `npm run test:e2e:stripe`, is NOT run here: it needs a real test key.)
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: bestdoors
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+
+    env:
+      CI: "true"
+      # Tests create and reset "bestdoors_test" (the name + "_test"), never "bestdoors".
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/bestdoors
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/bestdoors
+      JWT_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      WEB_URL: http://localhost:3000
+      ADMIN_EMAIL: admin@bestdoors.ie
+      ADMIN_PASSWORD: ci-admin-password-123
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Generated code is not in git: Prisma client and Next.js route types
+      - name: Generate
+        run: |
+          npm run db:generate
+          npx --workspace=@bestdoors/web next typegen
+
+      # The API dev server reads apps/api/.env; the env above wins over the example values.
+      - name: API env file
+        run: cp apps/api/.env.example apps/api/.env
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit and API tests
+        run: npm test
+
+      - name: Install Playwright browser
+        run: npx --workspace=@bestdoors/web playwright install --with-deps chromium
+
+      - name: Browser tests (E2E)
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7

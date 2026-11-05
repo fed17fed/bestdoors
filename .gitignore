@@ -1,0 +1,19 @@
+node_modules
+.next
+out
+dist
+coverage
+.env
+.env.local
+.env*.local
+*.log
+.vercel
+apps/api/src/generated
+playwright-report
+test-results
+
+# local uploads (development only, without a Vercel Blob token)
+apps/api/uploads
+
+# TypeScript build cache
+*.tsbuildinfo

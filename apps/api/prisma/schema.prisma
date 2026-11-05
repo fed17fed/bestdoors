@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Locale {
+  en
+  uk
+}
+
+enum CategoryType {
+  INTERIOR
+  EXTERIOR
+  PATIO
+  SLIDING
+  FRENCH
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  IN_PRODUCTION
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum QuoteStatus {
+  NEW
+  IN_PROGRESS
+  SENT
+  ACCEPTED
+  REJECTED
+}
+
+// ---------- Catalog ----------
+
+model Category {
+  id           String                @id @default(cuid())
+  slug         String                @unique
+  type         CategoryType
+  imageUrl     String                @default("")
+  sortOrder    Int                   @default(0)
+  parentId     String?
+  parent       Category?             @relation("CategoryTree", fields: [parentId], references: [id])
+  children     Category[]            @relation("CategoryTree")
+  products     Product[]
+  translations CategoryTranslation[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+}
+
+model CategoryTranslation {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locale      Locale
+  name        String
+  description String   @default("")
+
+  @@unique([categoryId, locale])
+}
+
+model Product {
+  id           String               @id @default(cuid())
+  slug         String               @unique
+  categoryId   String
+  category     Category             @relation(fields: [categoryId], references: [id])
+  material     String
+  basePrice    Decimal              @db.Decimal(10, 2)
+  published    Boolean              @default(false)
+  featured     Boolean              @default(false)
+  translations ProductTranslation[]
+  images       ProductImage[]
+  optionGroups ProductOptionGroup[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([categoryId])
+  @@index([published])
+}
+
+model ProductTranslation {
+  id          String  @id @default(cuid())
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locale      Locale
+  name        String
+  description String  @default("")
+
+  @@unique([productId, locale])
+  @@index([name])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String  @default("")
+  sortOrder Int     @default(0)
+}
+
+// ---------- Configurator options ----------
+
+model OptionGroup {
+  id           String                   @id @default(cuid())
+  code         String                   @unique // size, colour, glass, handle, swing
+  sortOrder    Int                      @default(0)
+  values       OptionValue[]
+  products     ProductOptionGroup[]
+  translations OptionGroupTranslation[]
+}
+
+model OptionGroupTranslation {
+  id            String      @id @default(cuid())
+  optionGroupId String
+  optionGroup   OptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  locale        Locale
+  name          String
+
+  @@unique([optionGroupId, locale])
+}
+
+model OptionValue {
+  id            String                   @id @default(cuid())
+  optionGroupId String
+  optionGroup   OptionGroup              @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  code          String
+  priceDelta    Decimal                  @default(0) @db.Decimal(10, 2)
+  swatch        String                   @default("") // hex colour for colour options
+  sortOrder     Int                      @default(0)
+  isDefault     Boolean                  @default(false)
+  translations  OptionValueTranslation[]
+
+  @@unique([optionGroupId, code])
+}
+
+model OptionValueTranslation {
+  id            String      @id @default(cuid())
+  optionValueId String
+  optionValue   OptionValue @relation(fields: [optionValueId], references: [id], onDelete: Cascade)
+  locale        Locale
+  label         String
+
+  @@unique([optionValueId, locale])
+}
+
+model ProductOptionGroup {
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  optionGroupId String
+  optionGroup   OptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+
+  @@id([productId, optionGroupId])
+}
+
+// ---------- Customers ----------
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         Role      @default(CUSTOMER)
+  locale       Locale    @default(en)
+  addresses    Address[]
+  orders       Order[]
+  cart         Cart?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName  String
+  line1     String
+  line2     String  @default("")
+  city      String
+  county    String
+  eircode   String
+  phone     String  @default("")
+  isDefault Boolean @default(false)
+}
+
+// ---------- Cart & orders ----------
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  selection Json // { optionGroupId: optionValueId }
+  quantity  Int     @default(1)
+  unitPrice Decimal @db.Decimal(10, 2) // snapshot, recalculated on checkout
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  number          Int         @unique @default(autoincrement())
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+  email           String
+  locale          Locale      @default(en)
+  status          OrderStatus @default(PENDING)
+  subtotal        Decimal     @db.Decimal(10, 2) // VAT inclusive
+  vatAmount       Decimal     @db.Decimal(10, 2)
+  shipping        Decimal     @default(0) @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
+  shippingAddress Json?
+  stripeSessionId String?     @unique
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([status])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  productName String // snapshot in the order locale
+  options     Json // snapshot: [{ group, value }]
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+}
+
+// ---------- Quotes ----------
+
+model QuoteRequest {
+  id        String       @id @default(cuid())
+  name      String
+  email     String
+  phone     String       @default("")
+  doorType  CategoryType
+  widthMm   Int?
+  heightMm  Int?
+  eircode   String       @default("")
+  message   String       @default("")
+  photos    String[]
+  productId String?
+  locale    Locale       @default(en)
+  status    QuoteStatus  @default(NEW)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}

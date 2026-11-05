@@ -1,0 +1,35 @@
+{
+  "name": "bestdoors",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:api & npm run dev:web",
+    "dev:api": "npm run dev --workspace=@bestdoors/api",
+    "dev:web": "npm run dev --workspace=@bestdoors/web",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=@bestdoors/api",
+    "db:migrate": "npm run db:migrate --workspace=@bestdoors/api",
+    "db:seed": "npm run db:seed --workspace=@bestdoors/api",
+    "format": "prettier --write .",
+    "test:e2e": "npm run test:e2e --workspace=@bestdoors/web",
+    "test:e2e:stripe": "npm run test:e2e:stripe --workspace=@bestdoors/web"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "overrides": {
+    "playwright-core": "1.56.1"
+  }
+}

@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* BestDoors design tokens: deep Irish green, warm oak, soft stone. */
+@theme {
+  --color-canvas: #faf8f4;
+  --color-surface: #ffffff;
+  --color-ink: #1d2320;
+  --color-muted: #5d6661;
+  --color-line: #e4e0d8;
+  --color-brand: #1f4d3a;
+  --color-brand-dark: #163a2b;
+  --color-brand-soft: #e6efe9;
+  --color-oak: #b5803f;
+  /* Oak for small text: 4.5:1 contrast on the light backgrounds (WCAG AA). */
+  --color-oak-text: #8a5d27;
+  --color-oak-soft: #f6ecdf;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html { color-scheme: light; }
+  body { @apply bg-canvas text-ink antialiased; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-brand; }
+}
+
+@utility container-page { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60; }
+@utility btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark; }
+@utility btn-outline { @apply btn border border-ink/20 bg-surface text-ink hover:border-ink/40; }
+@utility input { @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm placeholder:text-muted/70 focus:border-brand focus:outline-none; }
+@utility label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-muted; }
