@@ -9,5 +9,7 @@ export default defineConfig({
   outDir: "dist",
   clean: true,
   sourcemap: true,
-  noExternal: ["@bestdoors/shared"],
+  // sanitize-html (CommonJS) needs htmlparser2 12 (ESM only); Vercel's runtime cannot require() it, so we bundle both.
+  noExternal: ["@bestdoors/shared", "sanitize-html", "htmlparser2"],
+  banner: { js: 'import { createRequire as __cr } from "node:module"; const require = __cr(import.meta.url);' },
 });
