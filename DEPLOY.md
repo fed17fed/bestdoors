@@ -112,3 +112,8 @@ compile of `src/` fails with our workspace package, so it gets the bundle.)
 - Fill in the `[TO FILL: …]` facts: the info pages are now texts in the database, so edit them in `/admin` → Pages (search for "TO FILL"). `company.ts` is only used for the "legal draft" flag (`legalReviewed: true` after the lawyer's check)
 - Rate limit for the quote form (only a honeypot now)
 - Stripe live keys + live webhook
+
+## 2026-11-07 (night): live update
+- Neon `bestdoors_owner` password reset; `DATABASE_URL` + `DIRECT_URL` updated in Vercel `bestdoors-api` (Production only). To reset again: `neon roles reset-password bestdoors_owner --project-id silent-flower-00682600 --branch main`, then `vercel env update DATABASE_URL -e production -p bestdoors-api` (and `DIRECT_URL`), then redeploy. Old deployments keep the old password until redeployed.
+- Pushed commits 609c03a and cd1b5fb to `main`. `apps/api/tsup.config.ts` now bundles `sanitize-html` and `htmlparser2` (ESM-only dependency crashed the Vercel function). If the API fails with ERR_REQUIRE_ESM, check this first.
+- Deploy order reminder: the web build needs a working API; if the web build fails with "API 500", fix/redeploy the API first, then redeploy web.
