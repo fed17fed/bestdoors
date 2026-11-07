@@ -1,6 +1,6 @@
 {
   "Meta": {
-    "title": "BestDoors — Doors made in Ireland",
+    "title": "Mr.Door — Doors made in Ireland",
     "description": "Interior and exterior doors made in Ireland – modern, functional, and reliable."
   },
   "Nav": {
@@ -17,13 +17,15 @@
     "eyebrow": "Made in Ireland",
     "heroTitle": "Doors that are modern, functional and reliable",
     "heroText": "Interior and exterior doors made in Ireland. Choose a size, colour and glass, and see the price straight away.",
+    "heroAlt": "Mr.Door mascot: a smiling worker in blue overalls carrying a white door",
+    "heroBadge": "Free delivery across Ireland",
     "shopNow": "Shop doors",
     "getQuote": "Custom size? Get a quote",
     "categoriesTitle": "Shop by type",
     "doorsCount": "{count, plural, =0 {No doors yet} one {# door} other {# doors}}",
     "featuredTitle": "Popular doors",
     "viewAll": "View all doors",
-    "whyTitle": "Why BestDoors",
+    "whyTitle": "Why Mr.Door",
     "why": {
       "irelandTitle": "Made in Ireland",
       "irelandText": "Every door is built and finished in our Irish workshop.",
@@ -79,7 +81,7 @@
     "tagline": "Made in Ireland – modern, functional, and reliable.",
     "shop": "Shop",
     "help": "Help",
-    "rights": "© {year} BestDoors. All rights reserved.",
+    "rights": "© {year} Mr.Door. All rights reserved.",
     "company": "Company",
     "about": "About us",
     "contact": "Contact",
@@ -169,6 +171,7 @@
     "uploading": "Uploading photos…",
     "removePhoto": "Remove photo {n}",
     "photoError": "This photo could not be added. Please use JPG, PNG or WebP.",
+    "photoUploadFailed": "The photo could not be uploaded right now. Please try again later.",
     "tooMany": "You can add up to {max} photos.",
     "privacy": "We use your details only to prepare and send your quote.",
     "submit": "Send request",

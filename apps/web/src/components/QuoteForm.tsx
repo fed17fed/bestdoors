@@ -29,6 +29,12 @@ async function shrink(file: File): Promise<Blob> {
   }
 }
 
+class UploadError extends Error {
+  constructor(readonly status: number) {
+    super(`Upload failed: ${status}`);
+  }
+}
+
 async function uploadPhoto(file: File): Promise<string> {
   const blob = await shrink(file);
   const res = await fetch("/api/v1/quotes/photos", {
@@ -36,7 +42,7 @@ async function uploadPhoto(file: File): Promise<string> {
     headers: { "Content-Type": blob.type || "application/octet-stream" },
     body: blob,
   });
-  if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+  if (!res.ok) throw new UploadError(res.status);
   return ((await res.json()) as { url: string }).url;
 }
 
@@ -63,8 +69,10 @@ export function QuoteForm({ product }: Props) {
       try {
         const url = await uploadPhoto(file);
         setPhotos((p) => [...p, { url, preview: URL.createObjectURL(file) }]);
-      } catch {
-        setPhotoError(t("photoError"));
+      } catch (err) {
+        // 415/413 = wrong type or too big; anything else is a problem on our side (or the network).
+        const status = err instanceof UploadError ? err.status : 0;
+        setPhotoError(t(status === 415 || status === 413 ? "photoError" : "photoUploadFailed"));
       }
     }
     setUploading(false);

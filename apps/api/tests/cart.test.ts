@@ -49,12 +49,12 @@ describe("cart", () => {
     expect(r5.body.items).toHaveLength(1);
   });
 
-  it("ukrainian names in the cart", async () => {
+  it("old ?locale=uk still gives English names in the cart", async () => {
     const agent = request.agent(app);
     const { p } = await dublin();
     await agent.post("/api/v1/cart/items").send({ productId: p.id }).expect(201);
     const res = await agent.get("/api/v1/cart?locale=uk").expect(200);
-    expect(res.body.items[0].name).toBe("Композитні вхідні двері Dublin");
+    expect(res.body.items[0].name).toBe("Dublin Composite Front Door");
   });
 
   it("rejects bad products and other people's items", async () => {

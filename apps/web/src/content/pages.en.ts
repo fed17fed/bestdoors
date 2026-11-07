@@ -2,8 +2,8 @@ import type { PageTexts } from "./types";
 
 export const pagesEn: PageTexts = {
   about: (c) => ({
-    title: "About BestDoors",
-    description: "BestDoors: interior and exterior doors made in Ireland – modern, functional, and reliable.",
+    title: "About Mr.Door",
+    description: "Mr.Door: interior and exterior doors made in Ireland – modern, functional, and reliable.",
     legal: false,
     intro: "Made in Ireland – modern, functional, and reliable.",
     sections: [
@@ -24,7 +24,7 @@ export const pagesEn: PageTexts = {
 
   contact: (c) => ({
     title: "Contact us",
-    description: "Contact BestDoors: email, phone and address. Questions about doors, orders or a custom quote.",
+    description: "Contact Mr.Door: email, phone and address. Questions about doors, orders or a custom quote.",
     legal: false,
     intro: "Questions about a door, your order or a custom size? We are happy to help.",
     sections: [
@@ -39,7 +39,7 @@ export const pagesEn: PageTexts = {
 
   delivery: (c) => ({
     title: "Delivery",
-    description: "Delivery of BestDoors doors in Ireland: areas, times and cost.",
+    description: "Delivery of Mr.Door doors in Ireland: areas, times and cost.",
     legal: false,
     sections: [
       { heading: "Where we deliver", paragraphs: [c.deliveryAreas, "Online orders can only be delivered to an address in Ireland."] },
@@ -88,7 +88,7 @@ export const pagesEn: PageTexts = {
 
   privacy: (c) => ({
     title: "Privacy and cookies",
-    description: "How BestDoors uses your personal data, your GDPR rights, and the cookies on this website.",
+    description: "How Mr.Door uses your personal data, your GDPR rights, and the cookies on this website.",
     legal: true,
     sections: [
       { heading: "Who is responsible", paragraphs: [`The data controller is ${c.legalName}, ${c.address}. Contact for privacy questions: ${c.email}.`] },
@@ -156,7 +156,7 @@ export const pagesEn: PageTexts = {
 
   terms: (c) => ({
     title: "Terms and conditions",
-    description: "The terms for buying doors online from BestDoors.",
+    description: "The terms for buying doors online from Mr.Door.",
     legal: true,
     sections: [
       { heading: "Who we are", paragraphs: [`This website is run by ${c.legalName}, ${c.address}. CRO: ${c.croNumber}. VAT: ${c.vatNumber}. Email: ${c.email}.`] },

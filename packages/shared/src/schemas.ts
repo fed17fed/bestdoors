@@ -75,6 +75,15 @@ export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
   password: z.string().min(1).max(200),
 });
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+});
+/** New password after "Forgot password": at least 10 characters (same as scripts/create_admin.sh). */
+export const NEW_PASSWORD_MIN = 10;
+export const resetPasswordSchema = z.object({
+  token: z.string().min(20).max(2000),
+  password: z.string().min(NEW_PASSWORD_MIN).max(200),
+});
 
 /** Irish Eircode, e.g. "D02 X285" or "D6W 1234". */
 export const EIRCODE_REGEX = /^([AC-FHKNPRTV-Y]\d{2}|D6W) ?[0-9AC-FHKNPRTV-Y]{4}$/i;

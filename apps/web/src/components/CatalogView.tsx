@@ -58,7 +58,7 @@ export async function CatalogView({
   return (
     <div className="container-page py-10">
       <nav aria-label="Breadcrumb" className="text-sm text-muted">
-        <Link href="/" className="hover:text-ink">BestDoors</Link>
+        <Link href="/" className="hover:text-ink">Mr.Door</Link>
         {category && (
           <>
             {" / "}

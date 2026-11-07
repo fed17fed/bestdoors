@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 // The admin panel has its own root layout (no shop header/footer, English only).
 export const metadata: Metadata = {
-  title: "BestDoors admin",
+  title: "Mr.Door admin",
   robots: { index: false, follow: false },
 };
 

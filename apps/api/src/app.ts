@@ -12,6 +12,7 @@ import { checkoutRouter, myOrdersRouter, stripeWebhookRouter } from "./routes/ch
 import { env } from "./lib/env";
 import { adminQuoteRouter, quoteRouter } from "./routes/quote.routes";
 import { localUploadDir } from "./lib/storage";
+import { pageRouter } from "./routes/page.routes";
 
 export function createApp() {
   const app = express();
@@ -37,6 +38,7 @@ export function createApp() {
   v1.use("/checkout", checkoutRouter);
   v1.use("/me", myOrdersRouter);
   v1.use("/quotes", quoteRouter);
+  v1.use("/pages", pageRouter);
   if (env().NODE_ENV !== "production") {
     // Photos saved without a Vercel Blob token (development only).
     v1.use("/uploads", express.static(localUploadDir(), { index: false, dotfiles: "deny", fallthrough: false }));

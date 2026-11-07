@@ -88,7 +88,7 @@ export function Configurator({ product }: { product: ProductDetail }) {
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
-      <div className="flex items-center justify-center rounded-3xl bg-gradient-to-b from-oak-soft to-canvas p-10 lg:sticky lg:top-24 lg:self-start">
+      <div className="flex items-center justify-center rounded-3xl bg-gradient-to-b from-glow to-white p-10 lg:sticky lg:top-24 lg:self-start">
         {product.images[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={product.images[0].url} alt={product.images[0].alt || product.name} className="max-h-[520px] w-full object-contain" />

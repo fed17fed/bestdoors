@@ -52,6 +52,21 @@ so the API must be online before the shop is built. (Pages refresh their data ev
 
 Later schema changes: run step 3 again before the new API version goes live.
 
+### DONE 2026-11-07: Neon got these two migrations + `db:seed-pages` (backup branch `backup-before-remove-uk-2026-11-07`; the text below is kept as history)
+#### Neon still needs these two migrations (made 2026-11-07, applied only to the LOCAL databases so far)
+**Do not run them without the owner's OK: the first one DELETES the Ukrainian translation rows on Neon.**
+1. `20261107100000_remove_uk_locale`: deletes `uk` translation rows (categories, products, option groups, option values), sets `locale = 'en'` on users / orders / quote requests that had `uk` (nothing else is deleted), and replaces the `Locale` enum with `en` only.
+2. `20261107182328_add_pages`: new table `Page` and enum `PageStatus`.
+
+Order for the live site (database → API → shop, as always):
+```bash
+cd apps/api
+DATABASE_URL="<direct>" DIRECT_URL="<direct>" npx prisma migrate deploy     # both migrations
+DATABASE_URL="<direct>" npm run db:seed-pages                                 # creates the 6 info pages if missing
+```
+`db:seed-pages` is safe to run again: it only creates missing pages and never changes pages edited in the admin panel.
+Then push (API + shop deploy). If the shop is deployed BEFORE the pages exist, the info pages and footer links are empty / 404 until the step above is done. Old `/uk/...` links are redirected to `/en/...` by `apps/web/next.config.ts`.
+
 ## 3. Vercel – API project (`bestdoors-api`)
 1. Vercel → Add New → Project → import the GitHub repo.
 2. **Root Directory: `apps/api`**. Framework and build command come from `apps/api/vercel.json`
@@ -62,7 +77,7 @@ Later schema changes: run step 3 again before the new API version goes live.
    `WEB_URL` (for now the future shop URL, e.g. `https://bestdoors-web.vercel.app`),
    `STRIPE_SECRET_KEY`, `RESEND_API_KEY`, `EMAIL_FROM`, `SHOP_EMAIL`.
 4. Deploy. Check: `https://<api>.vercel.app/api/v1/health` → `{"ok":true}`.
-5. Storage → Create → **Blob** → connect to this project → `BLOB_READ_WRITE_TOKEN` is added. Redeploy.
+5. Storage → Create → **Blob** (region Frankfurt, access **Public**) → connect to this project → Vercel adds `BLOB_STORE_ID` (newer projects, sign-in via OIDC) or `BLOB_READ_WRITE_TOKEN` (older ones). The API works with both. Redeploy.
 
 How it runs: `apps/api/index.js` exports the ready bundle `dist/index.js`. (Vercel's own TypeScript
 compile of `src/` fails with our workspace package, so it gets the bundle.)
@@ -87,12 +102,13 @@ compile of `src/` fails with our workspace package, so it gets the bundle.)
 3. Resend → Domains → add `bestdoors.ie`, set its DNS records → `EMAIL_FROM` = `BestDoors <orders@bestdoors.ie>`.
 
 ## 7. Check after every deploy
-- Home page EN and UK, catalog, a product page, cart
+- Home page (English only), catalog, a product page, cart; `/uk/doors` redirects to `/en/doors`
+- Footer links and a page such as `/en/privacy` (info pages now come from the database, admin → Pages)
 - Test payment with card `4242 4242 4242 4242` → order is PAID in `/admin`, emails arrive
 - Quote form with a photo → quote in `/admin`, photo visible, email to `SHOP_EMAIL`
 - `/sitemap.xml` and `/robots.txt` show the real domain
 
 ## Before the real launch (not deploy steps)
-- Fill in `apps/web/src/lib/company.ts` (`[TO FILL: …]`), lawyer checks the legal pages, then `legalReviewed: true`
+- Fill in the `[TO FILL: …]` facts: the info pages are now texts in the database, so edit them in `/admin` → Pages (search for "TO FILL"). `company.ts` is only used for the "legal draft" flag (`legalReviewed: true` after the lawyer's check)
 - Rate limit for the quote form (only a honeypot now)
 - Stripe live keys + live webhook

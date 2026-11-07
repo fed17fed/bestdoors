@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import type { Locale } from "@bestdoors/shared";
-import { infoPage } from "@/content";
-import { alternates } from "@/lib/seo";
-import { InfoPageView } from "@/components/InfoPageView";
+import { loadPage, pageMetadata } from "@/lib/page-route";
+import { PageView } from "@/components/PageView";
 
+// The text comes from the database (admin panel → Pages). This file only keeps the old address working.
 export async function generateMetadata({ params }: PageProps<"/[locale]/returns">): Promise<Metadata> {
   const { locale } = await params;
-  const c = infoPage("returns", locale as Locale);
-  return { title: c.title, description: c.description, alternates: alternates(locale as Locale, "/returns") };
+  return pageMetadata(locale as Locale, "returns");
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/returns">) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <InfoPageView page="returns" locale={locale as Locale} />;
+  const page = await loadPage("returns");
+  if (!page) notFound();
+  return <PageView page={page} locale={locale as Locale} />;
 }

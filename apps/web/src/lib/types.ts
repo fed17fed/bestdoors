@@ -45,3 +45,9 @@ export type ProductList = {
   perPage: number;
   facets: { materials: string[] };
 };
+
+/** Info page in the list (footer, sitemap). */
+export type InfoPageSummary = { slug: string; title: string; showInFooter: boolean; sortOrder: number; updatedAt: string };
+
+/** Info page from the CMS. `content` is HTML that the API has already cleaned. */
+export type InfoPage = InfoPageSummary & { content: string; seoTitle: string; seoDescription: string };

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Playfair_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -11,7 +11,8 @@ import { CookieNotice } from "@/components/CookieNotice";
 import { alternates } from "@/lib/seo";
 import "../globals.css";
 
-const manrope = Manrope({ subsets: ["latin", "cyrillic"], variable: "--font-manrope", display: "swap" });
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["700", "800", "900"], variable: "--font-playfair", display: "swap" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -22,10 +23,10 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   const t = await getTranslations({ locale, namespace: "Meta" });
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-    title: { default: t("title"), template: "%s | BestDoors" },
+    title: { default: t("title"), template: "%s | Mr.Door" },
     description: t("description"),
     alternates: alternates(locale as Locale, ""),
-    openGraph: { siteName: "BestDoors", locale: locale === "uk" ? "uk_UA" : "en_IE", type: "website" },
+    openGraph: { siteName: "Mr.Door", images: [{ url: "/images/mr-door-logo.webp", width: 630, height: 628, alt: "Mr.Door" }], locale: "en_IE", type: "website" },
   };
 }
 
@@ -35,7 +36,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={manrope.variable}>
+    <html lang={locale} className={`${manrope.variable} ${playfair.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
         <NextIntlClientProvider>
           <Header locale={locale} />

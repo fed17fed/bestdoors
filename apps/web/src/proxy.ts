@@ -1,8 +1,8 @@
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 
-// Next.js 16 "proxy" (was middleware): redirects "/" to "/en" or "/uk"
-// using the NEXT_LOCALE cookie or the browser language.
+// Next.js 16 "proxy" (was middleware): redirects "/" to "/en". (English only; old /uk URLs
+// are redirected in next.config.ts.)
 export default createMiddleware(routing);
 
 export const config = {

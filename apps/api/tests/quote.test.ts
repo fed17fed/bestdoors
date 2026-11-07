@@ -43,17 +43,17 @@ describe("quotes", () => {
 
     const res = await request(app)
       .post("/api/v1/quotes")
-      .send({ ...base, eircode: "d02x285", message: "Wide front door", photos: [up.body.url], locale: "uk" })
+      .send({ ...base, eircode: "d02x285", message: "Wide front door", photos: [up.body.url], locale: "en" })
       .expect(201);
     expect(res.body.reference).toMatch(/^Q-[A-Z0-9]{6}$/);
 
     const q = await prisma.quoteRequest.findUniqueOrThrow({ where: { id: res.body.id } });
-    expect(q).toMatchObject({ email: "sean@example.com", eircode: "D02 X285", status: "NEW", locale: "uk", widthMm: 950 });
+    expect(q).toMatchObject({ email: "sean@example.com", eircode: "D02 X285", status: "NEW", locale: "en", widthMm: 950 });
     expect(q.photos).toEqual([up.body.url]);
 
     expect(emails).toHaveLength(2);
     const customer = emails.find((e) => e.to === "sean@example.com")!;
-    expect(customer.subject).toBe(`Ми отримали ваш запит ${res.body.reference}`);
+    expect(customer.subject).toBe(`We received your quote request ${res.body.reference}`);
     const shop = emails.find((e) => e.to === "shop@example.com")!;
     expect(shop.replyTo).toBe("sean@example.com");
     expect(shop.html).toContain(up.body.url);

@@ -9,14 +9,14 @@ export async function ProductCard({ product, locale }: { product: Product; local
   const t = await getTranslations("Product");
   const href = `/doors/${product.category.slug}/${product.slug}`;
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-shadow hover:shadow-lg">
-      <div className="flex aspect-[4/5] items-center justify-center bg-gradient-to-b from-oak-soft/60 to-canvas p-6">
+    <article className="group relative flex flex-col lift overflow-hidden rounded-2xl border border-line bg-surface">
+      <div className="flex aspect-[4/5] items-center justify-center bg-gradient-to-b from-glow/70 to-white p-6">
         {product.image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.image.url} alt={product.image.alt || product.name} className="h-full w-full object-contain" />
+          <img src={product.image.url} alt={product.image.alt || product.name} className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105" />
         ) : (
           <DoorIllustration
-            className="h-full w-auto drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.03]"
+            className="door-swing h-full w-auto drop-shadow-sm"
             colour={defaultDoorColour(product.material)}
             glass={defaultGlass(product.category.type)}
             double={isDoubleDoor(product.category.type)}

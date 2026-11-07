@@ -9,11 +9,11 @@ describe("catalog", () => {
     await request(app).get("/api/v1/health").expect(200, { ok: true });
   });
 
-  it("returns categories in Ukrainian", async () => {
-    const res = await request(app).get("/api/v1/categories?locale=uk").expect(200);
-    expect(res.body.find((c: { slug: string }) => c.slug === "interior-doors").name).toBe(
-      "Міжкімнатні двері",
-    );
+  it("returns categories in English; an old ?locale=uk falls back to English", async () => {
+    for (const url of ["/api/v1/categories", "/api/v1/categories?locale=uk"]) {
+      const res = await request(app).get(url).expect(200);
+      expect(res.body.find((c: { slug: string }) => c.slug === "interior-doors").name).toBe("Interior Doors");
+    }
   });
 
   it("filters and sorts products", async () => {
@@ -60,10 +60,10 @@ describe("auth and admin", () => {
     const email = `test-${Date.now()}@example.com`;
     await agent
       .post("/api/v1/auth/register")
-      .send({ email, password: "password123", name: "Test User", locale: "uk" })
+      .send({ email, password: "password123", name: "Test User", locale: "en" })
       .expect(201);
     const me = await agent.get("/api/v1/auth/me").expect(200);
-    expect(me.body).toMatchObject({ email, role: "CUSTOMER", locale: "uk" });
+    expect(me.body).toMatchObject({ email, role: "CUSTOMER", locale: "en" });
     await agent.get("/api/v1/admin/products").expect(403);
   });
 

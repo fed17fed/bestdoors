@@ -4,8 +4,8 @@
  * while a value starts with "[", the pages show a "missing details" note.
  */
 export const COMPANY = {
-  tradingName: "BestDoors",
-  legalName: "[TO FILL: company legal name, e.g. BestDoors Ltd]",
+  tradingName: "Mr.Door",
+  legalName: "[TO FILL: company legal name, e.g. Mr.Door Ltd]",
   address: "[TO FILL: registered address, with Eircode]",
   croNumber: "[TO FILL: CRO number]",
   vatNumber: "[TO FILL: VAT number, e.g. IE1234567X]",

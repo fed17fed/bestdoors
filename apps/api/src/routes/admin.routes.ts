@@ -1,13 +1,14 @@
 import { Router } from "express";
 import express from "express";
 import { z } from "zod";
-import { categoryInputSchema, optionGroupInputSchema, orderStatusSchema, productInputSchema } from "@bestdoors/shared";
+import { categoryInputSchema, optionGroupInputSchema, orderStatusSchema, pageInputSchema, productInputSchema } from "@bestdoors/shared";
 import { HttpError } from "../lib/http-error";
 import { MAX_PHOTO_BYTES, PHOTO_TYPES, savePhoto } from "../lib/storage";
 import { orderService } from "../services/order.service";
 import { requireAdmin } from "../middleware/auth";
 import { validateBody } from "../middleware/validate";
 import { adminService } from "../services/admin.service";
+import { pageService } from "../services/page.service";
 import { parseListParams, sendList } from "./react-admin";
 
 export const adminRouter = Router();
@@ -60,6 +61,25 @@ adminRouter.get("/option-groups/:id", async (req, res) => {
 });
 adminRouter.put("/option-groups/:id", validateBody(optionGroupInputSchema), async (req, res) => {
   res.json(await adminService.updateOptionGroup(String(req.params.id), res.locals.body));
+});
+
+// ----- info pages (rich text; the HTML is cleaned in pageService) -----
+adminRouter.get("/pages", async (req, res) => {
+  const params = parseListParams(req);
+  const { data, total } = await pageService.adminList(params);
+  sendList(res, "pages", data, total, params.page, params.perPage);
+});
+adminRouter.get("/pages/:id", async (req, res) => {
+  res.json(await pageService.adminGet(String(req.params.id)));
+});
+adminRouter.post("/pages", validateBody(pageInputSchema), async (_req, res) => {
+  res.status(201).json(await pageService.create(res.locals.body));
+});
+adminRouter.put("/pages/:id", validateBody(pageInputSchema), async (req, res) => {
+  res.json(await pageService.update(String(req.params.id), res.locals.body));
+});
+adminRouter.delete("/pages/:id", async (req, res) => {
+  res.json(await pageService.remove(String(req.params.id)));
 });
 
 // ----- orders -----

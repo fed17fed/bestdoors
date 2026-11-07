@@ -9,10 +9,12 @@ export async function Footer({ locale }: { locale: Locale }) {
   const t = await getTranslations("Footer");
   const nav = await getTranslations("Nav");
   const categories = await api.categories(locale).catch(() => []);
+  // Footer links come from the database (admin panel → Pages): published pages with "Show in footer".
+  const pages = (await api.pages().catch(() => [])).filter((p) => p.showInFooter);
 
   return (
     <footer className="mt-24 bg-brand-dark text-white/80">
-      <div className="container-page grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="container-page grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-2">
           <Logo inverted />
           <p className="mt-3 max-w-sm text-sm">{t("tagline")}</p>
@@ -31,17 +33,11 @@ export async function Footer({ locale }: { locale: Locale }) {
           <h2 className="mb-3 text-sm font-bold text-white">{t("help")}</h2>
           <ul className="space-y-2 text-sm">
             <li><Link href="/quote" className="hover:text-white">{nav("quote")}</Link></li>
-            <li><Link href="/delivery" className="hover:text-white">{t("delivery")}</Link></li>
-            <li><Link href="/returns" className="hover:text-white">{t("returns")}</Link></li>
-            <li><Link href="/contact" className="hover:text-white">{t("contact")}</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h2 className="mb-3 text-sm font-bold text-white">{t("company")}</h2>
-          <ul className="space-y-2 text-sm">
-            <li><Link href="/about" className="hover:text-white">{t("about")}</Link></li>
-            <li><Link href="/privacy" className="hover:text-white">{t("privacy")}</Link></li>
-            <li><Link href="/terms" className="hover:text-white">{t("terms")}</Link></li>
+            {pages.map((p) => (
+              <li key={p.slug}>
+                <Link href={`/${p.slug}`} className="hover:text-white">{p.title}</Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

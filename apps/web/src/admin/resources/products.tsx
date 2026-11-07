@@ -49,10 +49,6 @@ function ProductForm({ defaultValues }: { defaultValues?: object }) {
         <TextInput source="translations.0.name" label="Name" validate={required()} fullWidth />
         <TextInput source="translations.0.description" label="Description" multiline minRows={5} fullWidth />
       </TabbedForm.Tab>
-      <TabbedForm.Tab label="Українська">
-        <TextInput source="translations.1.name" label="Назва" helperText="Leave empty to show the English text." fullWidth />
-        <TextInput source="translations.1.description" label="Опис" multiline minRows={5} fullWidth />
-      </TabbedForm.Tab>
       <TabbedForm.Tab label="Images">
         <ArrayInput source="images" label="Images (the first one is the main image)">
           <SimpleFormIterator inline={false} disableClear>
@@ -75,7 +71,7 @@ const defaults = {
   featured: false,
   images: [],
   optionGroupIds: [],
-  translations: [{ locale: "en", name: "", description: "" }, { locale: "uk", name: "", description: "" }],
+  translations: [{ locale: "en", name: "", description: "" }],
 };
 
 export function ProductCreate() {

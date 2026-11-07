@@ -36,14 +36,12 @@ export function OptionGroupEdit() {
         <TextInput source="code" disabled helperText="Fixed: the shop uses this code." />
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", width: "100%" }}>
           <TextInput source="translations.0.name" label="Name (English)" validate={required()} />
-          <TextInput source="translations.1.name" label="Назва (українською)" />
           <NumberInput source="sortOrder" label="Order in the configurator" />
         </Box>
         <ArrayInput source="values" label="Values (shown in this order in the configurator; the extra price is added to the door price)">
           <SimpleFormIterator inline disableClear>
             <TextInput source="code" validate={[required(), codeRule]} helperText={false} sx={{ width: 130, flex: "none" }} />
             <TextInput source="translations.0.label" label="Label (EN)" validate={required()} helperText={false} sx={{ width: 230, flex: "none" }} />
-            <TextInput source="translations.1.label" label="Назва (UK)" helperText={false} sx={{ width: 230, flex: "none" }} />
             <NumberInput source="priceDelta" label="Extra price, €" helperText={false} sx={{ width: 130, flex: "none" }} />
             <TextInput source="swatch" label="Colour #hex" validate={colourRule} helperText={false} sx={{ width: 130, flex: "none" }} />
             <FormDataConsumer>

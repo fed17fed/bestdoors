@@ -9,9 +9,8 @@ describe("money", () => {
     expect(vatFromGross(1290)).toBe(241.22);
     expect(vatFromGross(0)).toBe(0);
   });
-  it("formats euro in both languages", () => {
+  it("formats euro", () => {
     expect(formatPrice(1290, "en")).toBe("€1,290.00");
-    expect(formatPrice(1290, "uk").replace(/\s/g, " ")).toBe("1 290,00 €");
   });
 });
 
@@ -36,7 +35,7 @@ describe("option group schema", () => {
     expect(optionGroupInputSchema.safeParse({ ...base, values: [value("a", true), value("b")] }).success).toBe(true);
     expect(optionGroupInputSchema.safeParse({ ...base, values: [value("a", true), value("b", true)] }).success).toBe(false);
     expect(optionGroupInputSchema.safeParse({ ...base, values: [value("a"), value("a")] }).success).toBe(false);
-    expect(optionGroupInputSchema.safeParse({ translations: [{ locale: "uk", name: "Скло" }], values: [value("a")] }).success).toBe(false);
+    expect(optionGroupInputSchema.safeParse({ translations: [{ locale: "uk", name: "Glass" }], values: [value("a")] }).success).toBe(false);
   });
 });
 
@@ -58,7 +57,7 @@ describe("emails are safe against HTML injection", () => {
   it("quote emails escape customer text; the shop email replies to the customer", () => {
     const data = {
       reference: "Q-ABC123", name: evil, email: "c@d.ie", phone: "", doorType: "EXTERIOR" as const,
-      widthMm: 900, heightMm: null, eircode: "", message: `${evil}\nsecond line`, photos: [], productName: null, locale: "uk" as const,
+      widthMm: 900, heightMm: null, eircode: "", message: `${evil}\nsecond line`, photos: [], productName: null, locale: "en" as const,
     };
     const shop = quoteShopEmail(data, "shop@bestdoors.ie");
     const customer = quoteCustomerEmail(data);

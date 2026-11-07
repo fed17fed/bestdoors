@@ -31,6 +31,8 @@ export default defineConfig({
   grepInvert: stripeOnly ? undefined : /@stripe/,
   use: {
     baseURL: `http://localhost:${WEB_PORT}`,
+    // no scroll/CSS animations during tests: stable clicks
+    contextOptions: { reducedMotion: "reduce" },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -60,10 +62,10 @@ export default defineConfig({
     },
     {
       // production build of the shop, talking to the test API
-      command: `npx next build && npx next start -p ${WEB_PORT}`,
+      command: `NEXT_DIST_DIR=.next-e2e npx next build && NEXT_DIST_DIR=.next-e2e npx next start -p ${WEB_PORT}`,
       cwd: HERE,
       url: `http://localhost:${WEB_PORT}/en`,
-      env: { API_URL: `http://localhost:${API_PORT}`, NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}` },
+      env: { E2E_NO_FETCH_CACHE: "1", API_URL: `http://localhost:${API_PORT}`, NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}` },
       reuseExistingServer: false,
       timeout: 300_000,
       stdout: "ignore",

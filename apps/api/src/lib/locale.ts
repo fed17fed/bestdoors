@@ -1,12 +1,10 @@
 import type { Request } from "express";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "@bestdoors/shared";
 
-/** ?locale=uk wins, then Accept-Language, then English. */
+/** English only for now. Unknown values (e.g. an old ?locale=uk) fall back to English. */
 export function requestLocale(req: Request): Locale {
   const fromQuery = req.query.locale;
   if (isLocale(fromQuery)) return fromQuery;
-  const header = req.headers["accept-language"]?.toLowerCase() ?? "";
-  if (header.startsWith("uk")) return "uk";
   return DEFAULT_LOCALE;
 }
 

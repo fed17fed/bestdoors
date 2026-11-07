@@ -28,7 +28,7 @@ export function CartLink() {
       </svg>
       <span className="hidden sm:inline">{nav("cart")}</span>
       {count > 0 && (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-oak px-1 text-[11px] font-bold text-white">
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-navy">
           {count}
         </span>
       )}

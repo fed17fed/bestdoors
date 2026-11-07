@@ -4,7 +4,7 @@ import { expect, test } from "./support/fixtures";
 test("pay with the Stripe test card @stripe", async ({ page, request }) => {
   test.setTimeout(120_000);
   const product = await (await request.get("/api/v1/products/dublin-composite-front-door")).json();
-  await page.goto("/uk/cart");
+  await page.goto("/en/cart");
   await page.request.post("/api/v1/cart/items", { data: { productId: product.id, quantity: 1 } });
   await page.reload();
   await page.getByRole("button", { name: "Оформити замовлення" }).click();
@@ -30,7 +30,7 @@ test("pay with the Stripe test card @stripe", async ({ page, request }) => {
   if ((await billingName.count()) && (await billingName.isVisible())) await billingName.fill("Aoife Murphy");
   await page.locator('[data-testid="hosted-payment-submit-button"]').click();
 
-  await page.waitForURL(/\/uk\/checkout\/success/, { timeout: 60_000 });
+  await page.waitForURL(/\/en\/checkout\/success/, { timeout: 60_000 });
   await expect(page.getByText("Дякуємо! Ваше замовлення підтверджено")).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("link", { name: /Кошик, порожній/ })).toBeVisible();
 });

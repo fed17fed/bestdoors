@@ -12,9 +12,11 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   // Resend only sends from a verified domain. Until bestdoors.ie is verified,
   // "onboarding@resend.dev" works, but only to the Resend account owner's email.
-  EMAIL_FROM: z.string().default("BestDoors <onboarding@resend.dev>"),
+  EMAIL_FROM: z.string().default("Mr.Door <onboarding@resend.dev>"),
   // Vercel Blob for quote photos. Without it, photos go to a local folder (development only).
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
+  // Newer Vercel Blob connection: only the store id; Vercel signs in by itself (OIDC), no token needed.
+  BLOB_STORE_ID: z.string().optional(),
   // The shop owner's email: gets new quote requests and a copy of every order email.
   SHOP_EMAIL: z.string().email().optional().or(z.literal("")),
 });

@@ -33,9 +33,15 @@ export async function savePhoto(folder: UploadFolder, buf: Buffer): Promise<stri
   if (!image) throw new HttpError(415, "Only JPG, PNG or WebP photos are allowed");
   const name = `${folder}/${new Date().toISOString().slice(0, 10)}-${randomUUID()}.${image.ext}`;
 
+  // Old Blob connection: BLOB_READ_WRITE_TOKEN. New one: BLOB_STORE_ID + Vercel's own OIDC sign-in.
   const token = env().BLOB_READ_WRITE_TOKEN;
-  if (token) {
-    const blob = await put(name, buf, { access: "public", contentType: image.type, token, addRandomSuffix: false });
+  if (token || env().BLOB_STORE_ID) {
+    const blob = await put(name, buf, {
+      access: "public",
+      contentType: image.type,
+      addRandomSuffix: false,
+      ...(token ? { token } : {}),
+    });
     return blob.url;
   }
   if (env().NODE_ENV === "production") throw new HttpError(503, "Photo upload is not configured");

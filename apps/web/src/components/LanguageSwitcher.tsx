@@ -6,8 +6,8 @@ import { useTransition } from "react";
 import { LOCALES, type Locale } from "@bestdoors/shared";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
-const LABELS: Record<Locale, string> = { en: "EN", uk: "UA" };
-const NAMES: Record<Locale, string> = { en: "English", uk: "Українська" };
+const LABELS: Record<Locale, string> = { en: "EN" };
+const NAMES: Record<Locale, string> = { en: "English" };
 
 export function LanguageSwitcher() {
   const t = useTranslations("Nav");

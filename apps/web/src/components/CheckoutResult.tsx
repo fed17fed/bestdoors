@@ -84,7 +84,7 @@ export function CheckoutResult({ sessionId }: { sessionId: string }) {
 
 function Panel({ tone, title, children }: { tone: "ok" | "wait" | "warn"; title: string; children: React.ReactNode }) {
   const icon = { ok: "✓", wait: "…", warn: "!" }[tone];
-  const colour = { ok: "bg-brand text-white", wait: "bg-oak-soft text-oak", warn: "bg-oak text-white" }[tone];
+  const colour = { ok: "bg-brand text-white", wait: "bg-oak-soft text-oak-text", warn: "bg-accent text-navy" }[tone];
   return (
     <section className="mx-auto max-w-xl rounded-2xl border border-line bg-surface p-8 text-center sm:p-10" role="status">
       <span aria-hidden className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl font-bold ${colour}`}>

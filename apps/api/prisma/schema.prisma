@@ -9,7 +9,6 @@ datasource db {
 
 enum Locale {
   en
-  uk
 }
 
 enum CategoryType {
@@ -32,6 +31,11 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
 }
 
 enum QuoteStatus {
@@ -265,4 +269,22 @@ model QuoteRequest {
   status    QuoteStatus  @default(NEW)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+}
+
+// ---------- Info pages (About, Delivery, ... edited in the admin panel) ----------
+
+model Page {
+  id             String     @id @default(cuid())
+  slug           String     @unique
+  title          String
+  content        String     @default("") @db.Text // rich-text HTML, cleaned (sanitized) before saving
+  seoTitle       String     @default("")
+  seoDescription String     @default("")
+  status         PageStatus @default(DRAFT)
+  showInFooter   Boolean    @default(false)
+  sortOrder      Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([status, showInFooter])
 }

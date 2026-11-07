@@ -8,9 +8,10 @@ const PATHS: Record<string, string> = {
   "option-groups": "admin/option-groups",
   orders: "admin/orders",
   quotes: "admin/quotes",
+  pages: "admin/pages",
 };
 
-const LOCALES = ["en", "uk"] as const;
+const LOCALES = ["en"] as const;
 type Translation = { locale: string } & Record<string, unknown>;
 
 async function call<T>(path: string, init?: RequestInit): Promise<{ json: T; headers: Headers }> {
@@ -35,12 +36,12 @@ const pathFor = (resource: string) => {
   return p;
 };
 
-/** Translations always become [en, uk] so the forms can use fixed tabs (translations.0 / translations.1). */
+/** Translations always become [en] so the forms can use fixed fields (translations.0 / translations.1). */
 function withTabs(list: Translation[] | undefined, empty: Record<string, string>): Translation[] {
   return LOCALES.map((locale) => list?.find((t) => t.locale === locale) ?? { locale, ...empty });
 }
 
-/** On save: a Ukrainian text that was left empty is not sent (English is required). */
+/** On save: empty texts are not sent (English is required). */
 function filled(list: Translation[] | undefined, key: string) {
   return (list ?? []).filter((t) => t.locale === "en" || String(t[key] ?? "").trim() !== "");
 }
@@ -93,6 +94,17 @@ function toApi(resource: string, data: Partial<RaRecord>): unknown {
           isDefault: !!v.isDefault,
           translations: filled(v.translations, "label"),
         })),
+      };
+    case "pages":
+      return {
+        slug: data.slug,
+        title: data.title,
+        content: data.content ?? "",
+        seoTitle: data.seoTitle ?? "",
+        seoDescription: data.seoDescription ?? "",
+        status: data.status,
+        showInFooter: !!data.showInFooter,
+        sortOrder: Number(data.sortOrder ?? 0),
       };
     case "orders":
     case "quotes":

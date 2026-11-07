@@ -18,7 +18,6 @@ export type QuoteEmailData = {
 
 const DOOR_TYPE: Record<Locale, Record<CategoryType, string>> = {
   en: { INTERIOR: "Interior door", EXTERIOR: "Exterior door", PATIO: "Patio door", SLIDING: "Sliding door", FRENCH: "French doors" },
-  uk: { INTERIOR: "Міжкімнатні двері", EXTERIOR: "Вхідні двері", PATIO: "Двері на терасу", SLIDING: "Розсувні двері", FRENCH: "Французькі двері" },
 };
 
 const esc = (s: string) =>
@@ -34,9 +33,7 @@ function layout(locale: Locale, body: string) {
 }
 
 function rows(q: QuoteEmailData, locale: Locale) {
-  const L = locale === "uk"
-    ? { type: "Тип дверей", product: "Модель", size: "Розмір (Ш × В)", eircode: "Eircode", phone: "Телефон", message: "Повідомлення", photos: "Фото" }
-    : { type: "Door type", product: "Model", size: "Size (W × H)", eircode: "Eircode", phone: "Phone", message: "Message", photos: "Photos" };
+  const L = { type: "Door type", product: "Model", size: "Size (W × H)", eircode: "Eircode", phone: "Phone", message: "Message", photos: "Photos" };
   const size = q.widthMm || q.heightMm ? `${q.widthMm ?? "?"} × ${q.heightMm ?? "?"} mm` : "";
   return [
     [L.type, DOOR_TYPE[locale][q.doorType]],
@@ -73,24 +70,15 @@ export function quoteShopEmail(q: QuoteEmailData, shopEmail: string): Email {
   return { to: shopEmail, replyTo: q.email, subject: `New quote request ${q.reference}: ${DOOR_TYPE.en[q.doorType]} (${q.name})`, html, text };
 }
 
-/** To the customer, in their language. */
+/** To the customer. */
 export function quoteCustomerEmail(q: QuoteEmailData): Email {
-  const uk = q.locale === "uk";
-  const t = uk
-    ? {
-        subject: `Ми отримали ваш запит ${q.reference}`,
-        hello: `Дякуємо, ${q.name}!`,
-        intro: "Ми отримали ваш запит на індивідуальну пропозицію. Наш спеціаліст перегляне його та зв'яжеться з вами.",
-        summary: "Ваш запит",
-        footer: "BestDoors · Зроблено в Ірландії – сучасні, функціональні та надійні.",
-      }
-    : {
-        subject: `We received your quote request ${q.reference}`,
-        hello: `Thank you, ${q.name}!`,
-        intro: "We have received your request for a custom quote. Our specialist will review it and contact you.",
-        summary: "Your request",
-        footer: "BestDoors · Made in Ireland – modern, functional, and reliable.",
-      };
+  const t = {
+    subject: `We received your quote request ${q.reference}`,
+    hello: `Thank you, ${q.name}!`,
+    intro: "We have received your request for a custom quote. Our specialist will review it and contact you.",
+    summary: "Your request",
+    footer: "Mr.Door · Made in Ireland – modern, functional, and reliable.",
+  };
   const list = rows(q, q.locale);
   const html = layout(
     q.locale,

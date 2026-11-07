@@ -9,7 +9,7 @@ export function vatFromGross(gross: number): number {
 }
 
 export function formatPrice(amount: number, locale: Locale): string {
-  // "narrowSymbol": Ukrainian shows "1 290,00 €" (not "EUR"), English stays "€1,290.00".
+  // "narrowSymbol": shows "€1,290.00" (not "EUR 1,290.00").
   return new Intl.NumberFormat(INTL_LOCALE[locale], {
     style: "currency",
     currency: "EUR",

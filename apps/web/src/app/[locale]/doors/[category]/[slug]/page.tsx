@@ -45,7 +45,7 @@ export default async function ProductPage({ params }: Props) {
     name: product.name,
     description: product.description,
     material: product.material,
-    brand: { "@type": "Brand", name: "BestDoors" },
+    brand: { "@type": "Brand", name: "Mr.Door" },
     image: product.images.map((i) => i.url),
     offers: {
       "@type": "Offer",

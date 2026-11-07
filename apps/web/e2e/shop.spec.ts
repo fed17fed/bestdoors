@@ -2,7 +2,7 @@ import { expect, test } from "./support/fixtures";
 
 const PRODUCT = "/en/doors/exterior-doors/dublin-composite-front-door";
 
-test("browse → configure → cart → change quantity → Ukrainian → remove", async ({ page }) => {
+test("browse → configure → cart → change quantity → remove", async ({ page }) => {
   await page.goto("/en");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
@@ -30,14 +30,14 @@ test("browse → configure → cart → change quantity → Ukrainian → remove
   await expect(page.getByText("2 items")).toBeVisible();
   await expect(page.locator("aside")).toContainText("€2,820.00");
 
-  // the cart in Ukrainian
-  await page.goto("/uk/cart");
-  await expect(page.getByRole("heading", { name: "Ваш кошик" })).toBeVisible();
-  await expect(page.getByText("Композитні вхідні двері Dublin")).toBeVisible();
-  await expect(page.locator("aside")).toContainText("2 820,00 €");
+  await page.getByRole("button", { name: "Remove" }).click();
+  await expect(page.getByText("Your cart is empty.")).toBeVisible();
+});
 
-  await page.getByRole("button", { name: "Видалити" }).click();
-  await expect(page.getByText("Ваш кошик порожній.")).toBeVisible();
+test("old Ukrainian URLs redirect to English", async ({ page }) => {
+  await page.goto("/uk/doors");
+  await expect(page).toHaveURL(/\/en\/doors$/);
+  await expect(page.getByRole("button", { name: "UA" })).toHaveCount(0);
 });
 
 test("catalog filters work through the URL", async ({ page }) => {
@@ -49,7 +49,7 @@ test("catalog filters work through the URL", async ({ page }) => {
 });
 
 test("unknown pages show the translated 404", async ({ page }) => {
-  const res = await page.goto("/uk/no-such-page");
+  const res = await page.goto("/en/no-such-page");
   expect(res?.status()).toBe(404);
   await expect(page.locator("body")).toContainText("404");
 });

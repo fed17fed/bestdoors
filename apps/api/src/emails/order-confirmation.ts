@@ -27,7 +27,7 @@ export type ShippingAddress = {
 
 const TEXT = {
   en: {
-    subject: (n: number) => `BestDoors order #${n} confirmed`,
+    subject: (n: number) => `Mr.Door order #${n} confirmed`,
     hello: "Thank you for your order!",
     intro: (n: number) =>
       `We have received your payment for order #${n}. We will contact you soon about production and delivery.`,
@@ -39,22 +39,7 @@ const TEXT = {
     total: "Total paid",
     address: "Delivery address",
     date: "Order date",
-    footer: "BestDoors · Made in Ireland – modern, functional, and reliable.",
-  },
-  uk: {
-    subject: (n: number) => `Замовлення BestDoors №${n} підтверджено`,
-    hello: "Дякуємо за замовлення!",
-    intro: (n: number) =>
-      `Ми отримали оплату за замовлення №${n}. Незабаром ми зв'яжемося з вами щодо виготовлення та доставки.`,
-    qty: "К-сть",
-    subtotal: "Сума",
-    vat: "У тому числі ПДВ (23%)",
-    delivery: "Доставка",
-    free: "Безкоштовно",
-    total: "Сплачено",
-    address: "Адреса доставки",
-    date: "Дата замовлення",
-    footer: "BestDoors · Зроблено в Ірландії – сучасні, функціональні та надійні.",
+    footer: "Mr.Door · Made in Ireland – modern, functional, and reliable.",
   },
 } satisfies Record<Locale, unknown>;
 

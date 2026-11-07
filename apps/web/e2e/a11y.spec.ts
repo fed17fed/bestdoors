@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./support/fixtures";
 
 // Automatic accessibility check (WCAG 2.x A/AA rules). Fails on "serious" and "critical" problems.
-const PAGES = ["/en", "/uk/doors", "/en/doors/exterior-doors", "/en/doors/exterior-doors/dublin-composite-front-door", "/en/cart", "/uk/quote", "/en/privacy"];
+const PAGES = ["/en", "/en/doors", "/en/doors/exterior-doors", "/en/doors/exterior-doors/dublin-composite-front-door", "/en/cart", "/en/quote", "/en/privacy"];
 
 for (const url of PAGES) {
   test(`accessibility ${url}`, async ({ page }) => {

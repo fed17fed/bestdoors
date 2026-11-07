@@ -94,7 +94,7 @@ describe("checkout", () => {
 
   it("creates a pending order and a Stripe session with server prices", async () => {
     const { agent, p } = await guestWithCart();
-    const res = await agent.post("/api/v1/checkout?locale=uk").expect(200);
+    const res = await agent.post("/api/v1/checkout").expect(200);
     expect(res.body.url).toMatch(/^https:\/\/checkout\.stripe\.com\//);
 
     expect(created!.mode).toBe("payment");
@@ -103,16 +103,16 @@ describe("checkout", () => {
       quantity: 2,
       price_data: { currency: "eur", unit_amount: Math.round(p.price * 100), tax_behavior: "inclusive" },
     });
-    expect(created!.line_items![0].price_data!.product_data!.name).toBe("Композитні вхідні двері Dublin");
+    expect(created!.line_items![0].price_data!.product_data!.name).toBe("Dublin Composite Front Door");
     expect(created!.shipping_address_collection!.allowed_countries).toEqual(["IE"]);
-    expect(created!.success_url).toMatch(/\/uk\/checkout\/success\?session_id=\{CHECKOUT_SESSION_ID\}$/);
+    expect(created!.success_url).toMatch(/\/en\/checkout\/success\?session_id=\{CHECKOUT_SESSION_ID\}$/);
 
     const order = await prisma.order.findUniqueOrThrow({
       where: { id: created!.metadata!.orderId as string },
       include: { items: true },
     });
     expect(order.status).toBe("PENDING");
-    expect(order.locale).toBe("uk");
+    expect(order.locale).toBe("en");
     expect(Number(order.total)).toBe(2 * p.price);
     expect(order.items[0].quantity).toBe(2);
   });
@@ -153,14 +153,14 @@ describe("checkout", () => {
 
   it("success page marks the order paid even before the webhook", async () => {
     const { agent } = await guestWithCart();
-    const { body } = await agent.post("/api/v1/checkout?locale=uk").expect(200);
+    const { body } = await agent.post("/api/v1/checkout").expect(200);
     const id = body.url.split("/").pop();
     sessions.set(id, paid(sessions.get(id)!));
 
     const res = await agent.get(`/api/v1/checkout/session/${id}`).expect(200);
     expect(res.body.status).toBe("PAID");
     expect(emails).toHaveLength(1);
-    expect(emails[0].subject).toMatch(/^Замовлення BestDoors №\d+ підтверджено$/);
+    expect(emails[0].subject).toMatch(/^Mr\.Door order #\d+ confirmed$/);
 
     await request(app).get("/api/v1/checkout/session/not-a-session").expect(400);
   });

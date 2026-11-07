@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { loginSchema, registerSchema } from "@bestdoors/shared";
+import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@bestdoors/shared";
 import { validateBody } from "../middleware/validate";
 import { clearSession, requireUser, setSession } from "../middleware/auth";
 import { authService } from "../services/auth.service";
@@ -30,6 +30,18 @@ authRouter.post("/login", validateBody(loginSchema), async (req, res) => {
   setSession(res, user);
   await adoptGuestCart(req, res, user.id);
   res.json(user);
+});
+
+// Always 204, so nobody can check which emails are registered.
+authRouter.post("/forgot-password", validateBody(forgotPasswordSchema), async (_req, res) => {
+  await authService.requestPasswordReset(res.locals.body.email);
+  res.status(204).end();
+});
+
+authRouter.post("/reset-password", validateBody(resetPasswordSchema), async (_req, res) => {
+  const { token, password } = res.locals.body;
+  await authService.resetPassword(token, password);
+  res.status(204).end();
 });
 
 authRouter.post("/logout", (_req, res) => {

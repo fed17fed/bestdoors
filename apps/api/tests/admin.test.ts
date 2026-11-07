@@ -41,7 +41,7 @@ describe("admin: option groups", () => {
     try {
       const changed = asInput(original);
       changed.values[0].priceDelta += 10;
-      changed.values.push({ code: "test-tinted", priceDelta: 99, swatch: "", isDefault: false, translations: [{ locale: "en", label: "Tinted" }, { locale: "uk", label: "Тоноване" }] });
+      changed.values.push({ code: "test-tinted", priceDelta: 99, swatch: "", isDefault: false, translations: [{ locale: "en", label: "Tinted" }] });
       const res = await admin.put(`/api/v1/admin/option-groups/${glassId}`).send(changed).expect(200);
       expect(res.body.values.map((v: Value) => v.id).slice(0, ids.length)).toEqual(ids);
       expect(res.body.values[0].priceDelta).toBe(original.values[0].priceDelta + 10);

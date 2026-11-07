@@ -61,7 +61,7 @@ function QuoteDetails() {
         <Typography color="text.secondary">{new Date(q.createdAt).toLocaleString("en-IE")} · {q.locale?.toUpperCase()}</Typography>
       </Box>
       {row("Name", q.name)}
-      {row("Email", <Link href={`mailto:${q.email}?subject=${encodeURIComponent(`BestDoors quote ${q.reference}`)}`}>{q.email}</Link>)}
+      {row("Email", <Link href={`mailto:${q.email}?subject=${encodeURIComponent(`Mr.Door quote ${q.reference}`)}`}>{q.email}</Link>)}
       {row("Phone", q.phone ? <Link href={`tel:${q.phone}`}>{q.phone}</Link> : "")}
       {row("Door type", typeName(q.doorType))}
       {row("Size (W × H)", size(q))}

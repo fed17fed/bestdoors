@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Private or personal pages (they also have "noindex").
-      disallow: ["/admin", "/api/", "/en/cart", "/uk/cart", "/en/checkout/", "/uk/checkout/"],
+      disallow: ["/admin", "/api/", "/en/cart", "/en/checkout/"],
     },
     sitemap: `${SITE}/sitemap.xml`,
   };

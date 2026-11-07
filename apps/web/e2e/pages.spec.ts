@@ -2,7 +2,7 @@ import { expect, test } from "./support/fixtures";
 
 const PAGES = ["about", "contact", "delivery", "returns", "privacy", "terms"];
 
-for (const locale of ["en", "uk"]) {
+for (const locale of ["en"]) {
   test(`info pages open in ${locale}`, async ({ page }) => {
     for (const p of PAGES) {
       const res = await page.goto(`/${locale}/${p}`);
@@ -32,7 +32,8 @@ test("sitemap.xml and robots.txt", async ({ request }) => {
   expect(sitemap.status()).toBe(200);
   const xml = await sitemap.text();
   expect(xml).toContain("/en/doors/exterior-doors/dublin-composite-front-door");
-  expect(xml).toContain('hreflang="uk-UA"');
+  expect(xml).toContain('hreflang="en-IE"');
+  expect(xml).not.toContain("/uk/");
   expect(xml).not.toContain("/admin");
 
   const robots = await (await request.get("/robots.txt")).text();
@@ -41,7 +42,7 @@ test("sitemap.xml and robots.txt", async ({ request }) => {
 });
 
 test("no horizontal scroll on key pages", async ({ page }) => {
-  for (const url of ["/en", "/en/doors", "/uk/quote", "/en/privacy"]) {
+  for (const url of ["/en", "/en/doors", "/en/quote", "/en/privacy"]) {
     await page.goto(url);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow, url).toBe(false);

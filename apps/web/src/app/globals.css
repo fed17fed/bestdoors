@@ -1,31 +1,141 @@
 @import "tailwindcss";
 
-/* BestDoors design tokens: deep Irish green, warm oak, soft stone. */
+/*
+ * Mr.Door design tokens (from the mascot image):
+ * navy #0B2A6F, royal blue #1E4FC2, light-blue glow #DCEBFF, white, tool-belt yellow #F5B800 (accent, use sparingly).
+ * Old token names (brand, canvas, oak...) are kept so every component picks up the new colours.
+ * Contrast (WCAG AA): ink on white 15:1, muted on white 7.3:1, brand on white 6.7:1,
+ * white on brand 6.7:1, white on navy 14:1, navy on yellow 8.5:1, oak-text on white 5.9:1.
+ */
 @theme {
-  --color-canvas: #faf8f4;
+  --color-navy: #0b2a6f;
+  --color-canvas: #f6faff;
   --color-surface: #ffffff;
-  --color-ink: #1d2320;
-  --color-muted: #5d6661;
-  --color-line: #e4e0d8;
-  --color-brand: #1f4d3a;
-  --color-brand-dark: #163a2b;
-  --color-brand-soft: #e6efe9;
-  --color-oak: #b5803f;
-  /* Oak for small text: 4.5:1 contrast on the light backgrounds (WCAG AA). */
-  --color-oak-text: #8a5d27;
-  --color-oak-soft: #f6ecdf;
+  --color-ink: #0b1b3f;
+  --color-muted: #475579;
+  --color-line: #d9e4f5;
+  --color-brand: #1e4fc2;
+  --color-brand-dark: #0b2a6f;
+  --color-brand-soft: #dcebff;
+  --color-glow: #dcebff;
+  --color-accent: #f5b800;
+  --color-accent-dark: #d99f00;
+  --color-oak: #f5b800;
+  /* Dark gold for small text on light backgrounds (4.5:1+). */
+  --color-oak-text: #7a5600;
+  --color-oak-soft: #fff4cc;
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), "Times New Roman", Georgia, serif;
+
+  --shadow-lift: 0 18px 40px -16px rgb(11 42 111 / 0.35);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-up: fade-up 0.8s var(--ease-out-soft) both;
+  --animate-walk-in: walk-in 1.3s var(--ease-out-soft) both;
+  --animate-bob: bob 2.6s ease-in-out infinite;
+  --animate-spin-slow: spin 40s linear infinite;
+  --animate-glow: glow 4.5s ease-in-out infinite;
+  --animate-draw: draw 2s var(--ease-out-soft) 0.2s both;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes fade-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @keyframes walk-in { from { opacity: 0; transform: translateX(-18%) scale(0.94); } to { opacity: 1; transform: none; } }
+  @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-0.6deg); } 50% { transform: translateY(-7px) rotate(0.5deg); } }
+  @keyframes glow { 0%, 100% { opacity: 0.55; transform: scale(0.96); } 50% { opacity: 1; transform: scale(1.06); } }
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 }
 
 @layer base {
-  html { color-scheme: light; }
+  html { color-scheme: light; scroll-behavior: smooth; }
   body { @apply bg-canvas text-ink antialiased; }
   :focus-visible { @apply outline-2 outline-offset-2 outline-brand; }
+  h1, h2 { font-family: var(--font-display); color: var(--color-navy); }
 }
 
 @utility container-page { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
-@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60; }
-@utility btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark; }
-@utility btn-outline { @apply btn border border-ink/20 bg-surface text-ink hover:border-ink/40; }
-@utility input { @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm placeholder:text-muted/70 focus:border-brand focus:outline-none; }
+@utility btn {
+  @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-2.5 text-sm font-semibold transition duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0;
+}
+@utility btn-primary { @apply btn bg-brand text-white shadow-sm hover:bg-navy hover:shadow-lift; }
+@utility btn-accent { @apply btn bg-accent text-navy shadow-sm hover:bg-accent-dark hover:shadow-lift; }
+@utility btn-outline { @apply btn border border-navy/25 bg-surface text-navy hover:border-brand hover:text-brand; }
+@utility input { @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm placeholder:text-muted/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20; }
 @utility label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-muted; }
+@utility text-wordmark { @apply bg-gradient-to-r from-brand to-[#3b82f6] bg-clip-text text-transparent; }
+
+/* Shine sweep on main buttons (hover only). */
+.btn-shine::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s var(--ease-out-soft);
+}
+.btn-shine:hover::after { transform: translateX(120%); }
+
+/* Cards: lift on hover. */
+.lift { transition: transform 0.35s var(--ease-out-soft), box-shadow 0.35s var(--ease-out-soft), border-color 0.2s; }
+.lift:hover { transform: translateY(-6px); box-shadow: var(--shadow-lift); border-color: var(--color-brand); }
+
+/* Door-opening hover: the door swings open around its left hinge. */
+.door-swing { transform-origin: 12% 50%; transition: transform 0.6s var(--ease-out-soft); }
+.group:hover .door-swing, .group:focus-visible .door-swing { transform: perspective(500px) rotateY(-28deg); }
+
+/* Hero helpers */
+.hero-bg {
+  background:
+    radial-gradient(60% 60% at 75% 45%, var(--color-glow) 0%, transparent 70%),
+    linear-gradient(180deg, #ffffff 0%, var(--color-canvas) 100%);
+}
+.ring-draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.parallax { transform: translate3d(calc(var(--mx, 0) * var(--depth, 10px)), calc(var(--my, 0) * var(--depth, 10px)), 0); transition: transform 0.25s ease-out; }
+.delay-1 { animation-delay: 0.15s; } .delay-2 { animation-delay: 0.3s; }
+.delay-3 { animation-delay: 0.45s; } .delay-4 { animation-delay: 0.6s; }
+
+/* Scroll-driven effects: pure CSS, only where the browser supports it and motion is allowed. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal { animation: fade-up linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
+    /* Header height is fixed (no layout shift); only the logo scales and the shadow appears. */
+    @keyframes header-shrink { to { transform: scale(0.85); } }
+    @keyframes header-shadow { to { box-shadow: 0 6px 24px -12px #0b2a6f59; } }
+    .header-bar { animation: header-shadow linear both; animation-timeline: scroll(root); animation-range: 0 80px; }
+    .header-logo { transform-origin: left center; animation: header-shrink linear both; animation-timeline: scroll(root); animation-range: 0 80px; }
+    .hero-art { animation: hero-scroll linear both; animation-timeline: scroll(root); animation-range: 0 600px; }
+    @keyframes hero-scroll { to { transform: translateY(60px) scale(0.97); opacity: 0.7; } }
+  }
+}
+
+/* Reduced motion: no movement, content stays visible. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+  .parallax { transform: none !important; }
+  .lift:hover { transform: none; }
+  .group:hover .door-swing { transform: none; }
+}
+
+/* Text of CMS pages (HTML from the admin editor). */
+.page-content { color: color-mix(in srgb, var(--color-ink) 90%, transparent); line-height: 1.7; overflow-wrap: anywhere; }
+.page-content > * + * { margin-top: 0.9rem; }
+.page-content h2 { font-size: 1.35rem; font-weight: 700; margin-top: 2.5rem; scroll-margin-top: 6rem; }
+.page-content h3 { font-size: 1.15rem; font-weight: 700; margin-top: 1.75rem; color: var(--color-navy); }
+.page-content h4 { font-size: 1rem; font-weight: 700; margin-top: 1.25rem; color: var(--color-navy); }
+.page-content a { color: var(--color-brand); text-decoration: underline; text-underline-offset: 3px; }
+.page-content a:hover { color: var(--color-navy); }
+.page-content ul { list-style: disc; padding-left: 1.25rem; }
+.page-content ol { list-style: decimal; padding-left: 1.25rem; }
+.page-content li + li { margin-top: 0.375rem; }
+.page-content li > p { margin: 0; }
+.page-content blockquote { border-left: 4px solid var(--color-accent); background: var(--color-brand-soft); padding: 0.75rem 1rem; border-radius: 0 0.75rem 0.75rem 0; }
+.page-content hr { border: 0; border-top: 1px solid var(--color-line); margin: 2rem 0; }
+.page-content img { max-width: 100%; height: auto; border-radius: 0.75rem; }
+.page-content code { background: var(--color-brand-soft); border-radius: 0.25rem; padding: 0.1rem 0.35rem; font-size: 0.9em; }
+.page-content pre { background: var(--color-navy); color: #fff; padding: 1rem; border-radius: 0.75rem; overflow-x: auto; }
+.page-content pre code { background: none; padding: 0; }
+.page-content mark { background: var(--color-oak-soft); color: var(--color-ink); border-radius: 0.25rem; padding: 0 0.25rem; }
+.page-content table { display: block; overflow-x: auto; width: 100%; border: 1px solid var(--color-line); border-radius: 0.75rem; background: var(--color-surface); font-size: 0.875rem; border-collapse: collapse; }
+.page-content th, .page-content td { padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--color-line); }
+.page-content th { background: var(--color-canvas); font-weight: 600; }
+.page-content tr:last-child td { border-bottom: 0; }

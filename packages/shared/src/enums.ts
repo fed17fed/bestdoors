@@ -13,3 +13,6 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const QUOTE_STATUSES = ["NEW", "IN_PROGRESS", "SENT", "ACCEPTED", "REJECTED"] as const;
 export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
+
+export const PAGE_STATUSES = ["DRAFT", "PUBLISHED"] as const;
+export type PageStatus = (typeof PAGE_STATUSES)[number];

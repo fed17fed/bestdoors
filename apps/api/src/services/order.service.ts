@@ -16,7 +16,6 @@ const SESSION_MINUTES = 60;
 
 const SHIPPING_LABEL: Record<Locale, string> = {
   en: "Free delivery in Ireland",
-  uk: "Безкоштовна доставка по Ірландії",
 };
 
 type OrderOption = { group: string; value: string; groupCode: string; valueCode: string };
@@ -81,8 +80,7 @@ export const orderService = {
           metadata: { orderId: order.id, cartId },
           payment_intent_data: { metadata: { orderId: order.id, orderNumber: String(order.number) } },
           customer_email: user?.email,
-          // Stripe Checkout has no Ukrainian; "auto" uses the browser language.
-          locale: locale === "en" ? "en" : "auto",
+          locale: "en",
           line_items: cart.items.map((l) => ({
             quantity: l.quantity,
             price_data: {
