@@ -43,7 +43,9 @@ function withTabs(list: Translation[] | undefined, empty: Record<string, string>
 
 /** On save: empty texts are not sent (English is required). */
 function filled(list: Translation[] | undefined, key: string) {
-  return (list ?? []).filter((t) => t.locale === "en" || String(t[key] ?? "").trim() !== "");
+  return (list ?? [])
+    .filter((t) => t.locale === "en" || String(t[key] ?? "").trim() !== "")
+    .map((t) => ("description" in t ? { ...t, description: t.description ?? "" } : t));
 }
 
 function fromApi(resource: string, r: RaRecord): RaRecord {
@@ -71,7 +73,8 @@ function toApi(resource: string, data: Partial<RaRecord>): unknown {
         published: !!data.published,
         featured: !!data.featured,
         translations: filled(data.translations, "name"),
-        images: (data.images ?? []).filter((i: { url?: string }) => i?.url),
+        // empty inputs come as null from react-admin; the API expects strings
+        images: (data.images ?? []).filter((i: { url?: string }) => i?.url).map((i: { url: string; alt?: string | null }) => ({ url: i.url, alt: i.alt ?? "" })),
         optionGroupIds: data.optionGroupIds ?? [],
       };
     case "categories":

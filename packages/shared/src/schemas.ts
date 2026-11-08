@@ -14,7 +14,7 @@ export const localeSchema = z.enum(LOCALES);
 export const translationSchema = z.object({
   locale: localeSchema,
   name: z.string().trim().min(2).max(160),
-  description: z.string().max(5000).default(""),
+  description: z.string().max(5000).nullish().transform((v) => v ?? ""),
 });
 
 /** At least the English translation is required. */
@@ -50,7 +50,7 @@ export const productInputSchema = z.object({
   featured: z.boolean().default(false),
   translations,
   images: z
-    .array(z.object({ url: imageUrlSchema, alt: z.string().max(200).default("") }))
+    .array(z.object({ url: imageUrlSchema, alt: z.string().max(200).nullish().transform((v) => v ?? "") }))
     .default([]),
   optionGroupIds: z.array(z.string()).default([]),
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EIRCODE_REGEX, formatPrice, quoteInputSchema, vatFromGross, imageUrlSchema, optionGroupInputSchema } from "@bestdoors/shared";
+import { EIRCODE_REGEX, formatPrice, quoteInputSchema, vatFromGross, imageUrlSchema, optionGroupInputSchema, productInputSchema, categoryInputSchema } from "@bestdoors/shared";
 import { orderConfirmationEmail } from "../src/emails/order-confirmation";
 import { quoteCustomerEmail, quoteShopEmail } from "../src/emails/quote-emails";
 
@@ -78,5 +78,24 @@ describe("product image url", () => {
   });
   it.each(["//evil.com/a.jpg", "images/a.jpg", "/a b.jpg", "javascript:alert(1)", ""])("rejects %s", (v) => {
     expect(imageUrlSchema.safeParse(v).success).toBe(false);
+  });
+});
+
+describe("admin forms send null for empty optional fields", () => {
+  const translations = [{ locale: "en", name: "Oak door", description: null }];
+  it("product: null alt text and null description are saved as empty strings", () => {
+    const r = productInputSchema.safeParse({
+      slug: "oak-door", categoryId: "c1", material: "Oak", basePrice: 100, translations,
+      images: [{ url: "https://cdn.example.com/a.webp", alt: null }],
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.images[0].alt).toBe("");
+      expect(r.data.translations[0].description).toBe("");
+    }
+  });
+  it("category: null description is saved as an empty string", () => {
+    const r = categoryInputSchema.safeParse({ slug: "front-doors", type: "EXTERIOR", imageUrl: "https://cdn.example.com/c.webp", translations });
+    expect(r.success).toBe(true);
   });
 });

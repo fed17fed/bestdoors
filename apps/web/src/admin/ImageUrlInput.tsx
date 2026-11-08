@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import UploadIcon from "@mui/icons-material/Upload";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import { useInput, useNotify, type InputProps } from "react-admin";
 import { uploadImage } from "./dataProvider";
 
@@ -42,7 +43,7 @@ export function ImageUrlInput(props: InputProps & { label?: string }) {
           label={props.label ?? "Image URL"}
           required={isRequired}
           error={!!fieldState.error}
-          helperText={fieldState.error?.message ?? "Upload a file or paste a URL (https://…)"}
+          helperText={fieldState.error?.message ?? "Upload a file or paste a URL (https://…). Click Save to apply. The shop shows changes within about 1 minute."}
           size="small"
           fullWidth
         />
@@ -50,6 +51,11 @@ export function ImageUrlInput(props: InputProps & { label?: string }) {
           {busy ? "Uploading…" : "Upload image"}
           <input hidden type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
         </Button>
+        {url && (
+          <Button size="small" color="error" startIcon={<DeleteOutlineIcon />} disabled={busy} onClick={() => field.onChange("")} sx={{ mt: 1, ml: 1 }}>
+            Remove image
+          </Button>
+        )}
       </Box>
     </Box>
   );
