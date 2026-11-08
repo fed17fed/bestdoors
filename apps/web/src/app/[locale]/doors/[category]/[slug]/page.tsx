@@ -60,6 +60,12 @@ export default async function ProductPage({ params }: Props) {
     <div className="container-page py-10">
       <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted">
         <Link href="/" className="hover:text-ink">{t("breadcrumbHome")}</Link>
+        {product.category.parent && (
+          <>
+            {" / "}
+            <Link href={`/doors/${product.category.parent.slug}`} className="hover:text-ink">{product.category.parent.name}</Link>
+          </>
+        )}
         {" / "}
         <Link href={`/doors/${product.category.slug}`} className="hover:text-ink">{product.category.name}</Link>
         {" / "}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EIRCODE_REGEX, formatPrice, quoteInputSchema, vatFromGross, optionGroupInputSchema } from "@bestdoors/shared";
+import { EIRCODE_REGEX, formatPrice, quoteInputSchema, vatFromGross, imageUrlSchema, optionGroupInputSchema } from "@bestdoors/shared";
 import { orderConfirmationEmail } from "../src/emails/order-confirmation";
 import { quoteCustomerEmail, quoteShopEmail } from "../src/emails/quote-emails";
 
@@ -68,5 +68,15 @@ describe("emails are safe against HTML injection", () => {
     expect(shop.replyTo).toBe("c@d.ie");
     expect(customer.html).toContain("900 × ? mm");
     expect(customer.subject).toContain("Q-ABC123");
+  });
+});
+
+describe("product image url", () => {
+  it("accepts full URLs and site paths", () => {
+    expect(imageUrlSchema.safeParse("https://cdn.example.com/a.jpg").success).toBe(true);
+    expect(imageUrlSchema.safeParse("/images/doors/product-front-door-navy-round-glass.webp").success).toBe(true);
+  });
+  it.each(["//evil.com/a.jpg", "images/a.jpg", "/a b.jpg", "javascript:alert(1)", ""])("rejects %s", (v) => {
+    expect(imageUrlSchema.safeParse(v).success).toBe(false);
   });
 });

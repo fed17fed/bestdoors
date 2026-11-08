@@ -29,9 +29,17 @@ export const categoryInputSchema = z.object({
   type: z.enum(CATEGORY_TYPES),
   imageUrl: z.string().url().or(z.literal("")).default(""),
   sortOrder: z.number().int().default(0),
+  /** Parent category id; null = main category. Only main categories can be parents (max 2 levels). */
+  parentId: z.string().min(1).nullable().default(null),
   translations,
 });
 export type CategoryInput = z.infer<typeof categoryInputSchema>;
+
+/** Full URL, or a path on this site such as /images/doors/x.webp (not //other-site). */
+export const imageUrlSchema = z.union([
+  z.string().url().refine((v) => /^https?:\/\//i.test(v), "Only http(s) URLs"),
+  z.string().regex(/^\/(?!\/)[\w\-./%]+$/, "Invalid image path").max(300),
+]);
 
 export const productInputSchema = z.object({
   slug,
@@ -42,7 +50,7 @@ export const productInputSchema = z.object({
   featured: z.boolean().default(false),
   translations,
   images: z
-    .array(z.object({ url: z.string().url(), alt: z.string().max(200).default("") }))
+    .array(z.object({ url: imageUrlSchema, alt: z.string().max(200).default("") }))
     .default([]),
   optionGroupIds: z.array(z.string()).default([]),
 });

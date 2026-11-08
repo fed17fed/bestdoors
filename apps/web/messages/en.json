@@ -39,6 +39,8 @@
   },
   "Catalog": {
     "allDoors": "All doors",
+    "subcategories": "Types of {name}",
+    "backToAll": "All {name}",
     "results": "{count, plural, =0 {No doors} one {# door} other {# doors}}",
     "filters": "Filters",
     "search": "Search",

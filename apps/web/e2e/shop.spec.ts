@@ -53,3 +53,38 @@ test("unknown pages show the translated 404", async ({ page }) => {
   expect(res?.status()).toBe(404);
   await expect(page.locator("body")).toContainText("404");
 });
+
+test("home shows exactly 2 main category tiles", async ({ page }) => {
+  await page.goto("/en");
+  const tiles = page.getByTestId("category-tile");
+  await expect(tiles).toHaveCount(2);
+  await expect(tiles.nth(0)).toHaveAttribute("href", "/en/doors/exterior-doors");
+  await expect(tiles.nth(1)).toHaveAttribute("href", "/en/doors/interior-doors");
+  // the number on the tile = the number of doors on the category page (12 / 9 in the dev data)
+  for (const [i, slug] of ["exterior-doors", "interior-doors"].entries()) {
+    const count = (await tiles.nth(i).innerText()).match(/(\d+) doors?/)?.[1];
+    expect(count).toBeTruthy();
+    await page.goto(`/en/doors/${slug}`);
+    await expect(page.locator("section[aria-live=polite] > p").first()).toHaveText(`${count} doors`);
+    await page.goto("/en");
+  }
+  await expect(tiles.nth(0).locator("img")).toHaveCount(0); // drawings, no photos
+});
+
+test("exterior main page: 4 subcategory tiles; tile opens the subcategory", async ({ page }) => {
+  await page.goto("/en/doors/exterior-doors");
+  await expect(page.getByTestId("category-tile")).toHaveCount(4);
+  await expect(page.locator("section[aria-live=polite] > p").first()).toHaveText(/^\d+ doors$/);
+  await page.getByTestId("category-tile").filter({ hasText: "Exterior Sliding Doors" }).click();
+  await expect(page).toHaveURL(/\/en\/doors\/sliding-doors$/);
+  await expect(page.getByTestId("category-tile")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /All Exterior Doors/ })).toBeVisible();
+});
+
+test("interior main page: 2 subcategory tiles", async ({ page }) => {
+  await page.goto("/en/doors/interior-doors");
+  await expect(page.getByTestId("category-tile")).toHaveCount(2);
+  await expect(page.locator("section[aria-live=polite] > p").first()).toHaveText(/^\d+ doors$/);
+  await page.getByTestId("category-tile").first().click();
+  await expect(page).toHaveURL(/\/en\/doors\/interior-(sliding|french)-doors$/);
+});

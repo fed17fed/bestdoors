@@ -1,7 +1,8 @@
 import type { CategoryInput, OptionGroupInput, ProductInput } from "@bestdoors/shared";
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../lib/prisma";
-import { notFound } from "../lib/http-error";
+import { HttpError, notFound } from "../lib/http-error";
+import { assertValidParent } from "../lib/category-tree";
 
 export type ListParams = {
   page: number;
@@ -109,9 +110,11 @@ export const adminService = {
       include: { translations: true, _count: { select: { products: true } } },
       orderBy: { sortOrder: "asc" },
     });
+    const nameOf = (c: (typeof rows)[number]) => c.translations.find((t) => t.locale === "en")?.name ?? c.slug;
     return rows.map((c) => ({
       ...c,
-      name: c.translations.find((t) => t.locale === "en")?.name ?? c.slug,
+      name: nameOf(c),
+      parentName: rows.find((p) => p.id === c.parentId) ? nameOf(rows.find((p) => p.id === c.parentId)!) : null,
       translations: c.translations.map(({ locale, name, description }) => ({ locale, name, description })),
     }));
   },
@@ -123,7 +126,14 @@ export const adminService = {
     return c;
   },
 
+  async checkParent(id: string | undefined, parentId: string | null) {
+    const parent = parentId ? await prisma.category.findUnique({ where: { id: parentId }, select: { id: true, parentId: true } }) : null;
+    const childCount = id ? await prisma.category.count({ where: { parentId: id } }) : 0;
+    assertValidParent({ id, parentId, parent, childCount });
+  },
+
   async createCategory(input: CategoryInput) {
+    await this.checkParent(undefined, input.parentId);
     const c = await prisma.category.create({
       data: { ...input, translations: { create: input.translations } },
     });
@@ -131,6 +141,8 @@ export const adminService = {
   },
 
   async updateCategory(id: string, input: CategoryInput) {
+    await this.getCategory(id);
+    await this.checkParent(id, input.parentId);
     await prisma.$transaction(async (tx) => {
       await tx.categoryTranslation.deleteMany({ where: { categoryId: id } });
       await tx.category.update({
@@ -143,6 +155,9 @@ export const adminService = {
 
   async deleteCategory(id: string) {
     const c = await this.getCategory(id);
+    if (await prisma.category.count({ where: { parentId: id } })) {
+      throw new HttpError(409, "This category has subcategories. Move or change them first.");
+    }
     await prisma.category.delete({ where: { id } });
     return c;
   },

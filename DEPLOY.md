@@ -53,8 +53,8 @@ so the API must be online before the shop is built. (Pages refresh their data ev
 Later schema changes: run step 3 again before the new API version goes live.
 
 ### DONE 2026-11-07: Neon got these two migrations + `db:seed-pages` (backup branch `backup-before-remove-uk-2026-11-07`; the text below is kept as history)
-#### Neon still needs these two migrations (made 2026-11-07, applied only to the LOCAL databases so far)
-**Do not run them without the owner's OK: the first one DELETES the Ukrainian translation rows on Neon.**
+#### Neon migrations from 2026-11-07: DONE (owner applied them and ran `db:seed-pages`; live site checked 2026-11-07)
+Kept below as a record and as the steps for any new database. The first migration DELETES the Ukrainian translation rows, so ask the owner before running it anywhere with real data.
 1. `20261107100000_remove_uk_locale`: deletes `uk` translation rows (categories, products, option groups, option values), sets `locale = 'en'` on users / orders / quote requests that had `uk` (nothing else is deleted), and replaces the `Locale` enum with `en` only.
 2. `20261107182328_add_pages`: new table `Page` and enum `PageStatus`.
 

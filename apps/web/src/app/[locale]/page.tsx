@@ -2,12 +2,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Locale } from "@bestdoors/shared";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/api";
-import { DoorIllustration } from "@/components/DoorIllustration";
+import { CategoryTile } from "@/components/CategoryTile";
 import { HeroArt } from "@/components/HeroArt";
 import { ProductCard } from "@/components/ProductCard";
-import { defaultGlass, isDoubleDoor } from "@/lib/door-look";
 
-const CATEGORY_COLOURS = ["#1e4fc2", "#f5f5f2", "#383e42", "#b5803f", "#d2a76b"];
+const MAIN_COLOURS = ["#1e4fc2", "#f5f5f2"];
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale: l } = await params;
@@ -19,6 +18,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
     api.products(locale, { perPage: 60 }).then((r) => r.data.filter((p) => p.featured).slice(0, 8)),
   ]);
 
+  const mainCategories = categories.filter((c) => !c.parentId);
   const why = ["ireland", "weather", "config", "delivery"] as const;
 
   return (
@@ -44,15 +44,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       {/* Categories */}
       <section className="container-page py-16" aria-labelledby="cat-title">
         <h2 id="cat-title" className="reveal text-2xl font-black tracking-tight sm:text-3xl">{t("categoriesTitle")}</h2>
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {categories.map((c, i) => (
-            <Link key={c.id} href={`/doors/${c.slug}`} className="reveal group lift rounded-2xl border border-line bg-surface p-4">
-              <div className="flex aspect-square items-center justify-center rounded-xl bg-gradient-to-b from-glow/60 to-white">
-                <DoorIllustration className="door-swing h-4/5 w-auto" colour={CATEGORY_COLOURS[i % CATEGORY_COLOURS.length]} glass={defaultGlass(c.type)} double={isDoubleDoor(c.type)} />
-              </div>
-              <h3 className="mt-3 font-bold">{c.name}</h3>
-              <p className="text-sm text-muted">{t("doorsCount", { count: c.productCount })}</p>
-            </Link>
+        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+          {mainCategories.map((c, i) => (
+            <CategoryTile key={c.id} category={c} size="large" reveal colour={MAIN_COLOURS[i % MAIN_COLOURS.length]} />
           ))}
         </div>
       </section>

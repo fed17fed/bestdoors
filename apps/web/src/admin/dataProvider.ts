@@ -80,6 +80,7 @@ function toApi(resource: string, data: Partial<RaRecord>): unknown {
         type: data.type,
         imageUrl: data.imageUrl ?? "",
         sortOrder: data.sortOrder ?? 0,
+        parentId: data.parentId || null,
         translations: filled(data.translations, "name"),
       };
     case "option-groups":

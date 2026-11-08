@@ -6,9 +6,13 @@ export type Category = {
   type: CategoryType;
   imageUrl: string;
   parentId: string | null;
+  parentSlug: string | null;
   name: string;
   description: string;
+  /** Own products only. */
   productCount: number;
+  /** Own products + products of subcategories. */
+  totalProductCount: number;
 };
 
 export type ProductImage = { id?: string; url: string; alt: string };
@@ -22,7 +26,7 @@ export type ProductCard = {
   price: number;
   featured: boolean;
   image: ProductImage | null;
-  category: { slug: string; type: CategoryType; name: string };
+  category: { slug: string; type: CategoryType; name: string; parent: { slug: string; name: string } | null };
 };
 
 export type OptionValue = {

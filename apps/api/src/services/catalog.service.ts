@@ -7,7 +7,7 @@ import { HttpError, notFound } from "../lib/http-error";
 const productInclude = {
   translations: true,
   images: { orderBy: { sortOrder: "asc" } },
-  category: { include: { translations: true } },
+  category: { include: { translations: true, parent: { include: { translations: true } } } },
 } satisfies Prisma.ProductInclude;
 
 type ProductWithBasics = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
@@ -24,34 +24,54 @@ function toProductCard(p: ProductWithBasics, locale: Locale) {
     price: Number(p.basePrice),
     featured: p.featured,
     image: p.images[0] ?? null,
-    category: { slug: p.category.slug, type: p.category.type, name: ct?.name ?? p.category.slug },
+    category: {
+      slug: p.category.slug,
+      type: p.category.type,
+      name: ct?.name ?? p.category.slug,
+      // Main category of a subcategory (null if the category is a main category itself).
+      parent: p.category.parent
+        ? {
+            slug: p.category.parent.slug,
+            name: pickTranslation(p.category.parent.translations, locale)?.name ?? p.category.parent.slug,
+          }
+        : null,
+    },
   };
 }
+
+/** A category page shows its own products and the products of its subcategories. */
+export const categoryFilter = (slug: string): Prisma.ProductWhereInput["category"] => ({
+  OR: [{ slug }, { parent: { slug } }],
+});
 
 export const catalogService = {
   async listCategories(locale: Locale) {
     const categories = await prisma.category.findMany({
-      include: { translations: true, _count: { select: { products: { where: { published: true } } } } },
+      include: { translations: true, parent: { select: { slug: true } }, _count: { select: { products: { where: { published: true } } } } },
       orderBy: { sortOrder: "asc" },
     });
     return categories.map((c) => {
       const t = pickTranslation(c.translations, locale);
+      const childrenCount = categories.filter((x) => x.parentId === c.id).reduce((n, x) => n + x._count.products, 0);
       return {
         id: c.id,
         slug: c.slug,
         type: c.type,
         imageUrl: c.imageUrl,
         parentId: c.parentId,
+        parentSlug: c.parent?.slug ?? null,
         name: t?.name ?? c.slug,
         description: t?.description ?? "",
         productCount: c._count.products,
+        // Own products + products of subcategories (what the category page shows).
+        totalProductCount: c._count.products + childrenCount,
       };
     });
   },
 
   async listProducts(q: ProductListQuery) {
     const where: Prisma.ProductWhereInput = { published: true };
-    if (q.category) where.category = { slug: q.category };
+    if (q.category) where.category = categoryFilter(q.category);
     if (q.material) where.material = { equals: q.material, mode: "insensitive" };
     if (q.minPrice !== undefined || q.maxPrice !== undefined) {
       where.basePrice = { gte: q.minPrice, lte: q.maxPrice };
@@ -78,7 +98,7 @@ export const catalogService = {
       }),
       prisma.product.count({ where }),
       prisma.product.findMany({
-        where: { published: true, ...(q.category ? { category: { slug: q.category } } : {}) },
+        where: { published: true, ...(q.category ? { category: categoryFilter(q.category) } : {}) },
         distinct: ["material"],
         select: { material: true },
         orderBy: { material: "asc" },

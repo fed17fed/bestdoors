@@ -13,7 +13,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "db:seed-pages": "tsx prisma/seed-pages.ts"
+    "db:seed-pages": "tsx prisma/seed-pages.ts",
+    "db:seed-door-photos": "tsx prisma/seed-door-photos.ts",
+    "db:seed-category-tree": "tsx prisma/seed-category-tree.ts"
   },
   "dependencies": {
     "@bestdoors/shared": "*",

@@ -1,57 +1,15 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, type CategoryType } from "../src/generated/prisma/client";
+import { PrismaClient } from "../src/generated/prisma/client";
 import { seedPages } from "./seed-pages";
+import { CATEGORY_TREE, PRODUCT_MOVES } from "./category-tree-data";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is not set");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
 type T = { en: string };
-
-const categories: { slug: string; type: CategoryType; name: T; description: T }[] = [
-  {
-    slug: "exterior-doors",
-    type: "EXTERIOR",
-    name: { en: "Exterior Doors" },
-    description: {
-      en: "Secure, insulated front doors built for the Irish weather.",
-    },
-  },
-  {
-    slug: "interior-doors",
-    type: "INTERIOR",
-    name: { en: "Interior Doors" },
-    description: {
-      en: "Modern interior doors for every room in your home.",
-    },
-  },
-  {
-    slug: "patio-doors",
-    type: "PATIO",
-    name: { en: "Patio Doors" },
-    description: {
-      en: "Bring more light into your home with patio doors.",
-    },
-  },
-  {
-    slug: "sliding-doors",
-    type: "SLIDING",
-    name: { en: "Sliding Doors" },
-    description: {
-      en: "Space-saving sliding doors with a smooth, quiet action.",
-    },
-  },
-  {
-    slug: "french-doors",
-    type: "FRENCH",
-    name: { en: "French Doors" },
-    description: {
-      en: "Classic double doors with glass panels.",
-    },
-  },
-];
 
 type Opt = { code: string; label: T; delta: number; swatch?: string; isDefault?: boolean };
 const optionGroups: { code: string; name: T; values: Opt[] }[] = [
@@ -130,22 +88,21 @@ const products: P[] = [
 ];
 
 async function main() {
-  // Categories
+  // Categories (2-level tree: main categories first, so parents exist)
   const categoryIds: Record<string, string> = {};
-  for (const [i, c] of categories.entries()) {
+  for (const c of [...CATEGORY_TREE].sort((a, b) => Number(a.parent !== null) - Number(b.parent !== null))) {
+    const parentId = c.parent ? categoryIds[c.parent]! : null;
     const row = await prisma.category.upsert({
       where: { slug: c.slug },
-      update: { type: c.type, sortOrder: i },
-      create: { slug: c.slug, type: c.type, sortOrder: i },
+      update: { type: c.type, sortOrder: c.sortOrder, parentId },
+      create: { slug: c.slug, type: c.type, sortOrder: c.sortOrder, parentId },
     });
     categoryIds[c.slug] = row.id;
-    for (const locale of ["en"] as const) {
-      await prisma.categoryTranslation.upsert({
-        where: { categoryId_locale: { categoryId: row.id, locale } },
-        update: { name: c.name[locale], description: c.description[locale] },
-        create: { categoryId: row.id, locale, name: c.name[locale], description: c.description[locale] },
-      });
-    }
+    await prisma.categoryTranslation.upsert({
+      where: { categoryId_locale: { categoryId: row.id, locale: "en" } },
+      update: { name: c.name, description: c.description },
+      create: { categoryId: row.id, locale: "en", name: c.name, description: c.description },
+    });
   }
 
   // Option groups and values
@@ -183,7 +140,7 @@ async function main() {
 
   // Products
   for (const [slug, cat, material, price, featured, name, description, opts] of products) {
-    const data = { categoryId: categoryIds[cat]!, material, basePrice: price, featured, published: true };
+    const data = { categoryId: categoryIds[PRODUCT_MOVES[slug] ?? cat]!, material, basePrice: price, featured, published: true };
     const product = await prisma.product.upsert({ where: { slug }, update: data, create: { slug, ...data } });
     for (const locale of ["en"] as const) {
       await prisma.productTranslation.upsert({
@@ -214,7 +171,7 @@ async function main() {
   // Info pages (only the missing ones are created)
   const newPages = await seedPages(prisma);
 
-  console.log(`Seeded ${categories.length} categories, ${optionGroups.length} option groups, ${products.length} products, ${newPages} new info pages.`);
+  console.log(`Seeded ${CATEGORY_TREE.length} categories, ${optionGroups.length} option groups, ${products.length} products, ${newPages} new info pages.`);
 }
 
 main()
