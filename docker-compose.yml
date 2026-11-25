@@ -6,10 +6,11 @@ services:
     environment:
       POSTGRES_DB: bestdoors
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the root .env file}
     # 5433 so it does not conflict with door-store-postgres on 5432
+    # 127.0.0.1: only this computer can connect
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - bestdoors_data:/var/lib/postgresql/data
     healthcheck:
